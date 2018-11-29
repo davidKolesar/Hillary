@@ -24,7 +24,6 @@ import java.util.logging.Logger;
  *
  */
 public class ChatServer {
-	// handles logging
 	private static final Logger LOGGER = Logger.getLogger(ChatServer.class.getName());
 	private static final int PORT = 9001;
 	private static final String SUBMIT_NAME_REQUEST = "SUBMIT_USERNAME";
@@ -47,7 +46,7 @@ public class ChatServer {
 		try {
 			listener = new ServerSocket(PORT);
 		} catch (IOException e) {
-			LOGGER.warning("failed to instantate new ServerSocket on port " + PORT +" Error : " + e.getMessage());
+			LOGGER.log(Level.WARNING, "Server failed to instantate new ServerSocket on port " + PORT, e);
 		}
 
 		// Trying to instantiate new UserInteractionService
@@ -56,7 +55,7 @@ public class ChatServer {
 				new UserInteractionService(listener.accept()).start();
 			}
 		} catch (IOException e) {
-			LOGGER.warning("failed to spawn new Handler. Error : " + e.getMessage());
+			LOGGER.log(Level.WARNING, "Server failed to spwan new UserInteractionService", e);
 		}
 
 		// Finally block closes listener upon disconnect
@@ -64,7 +63,7 @@ public class ChatServer {
 			try {
 				listener.close();
 			} catch (IOException e) {
-				LOGGER.warning("failed to close listener. Error : " + e.getMessage());
+				LOGGER.log(Level.WARNING, "Server failed to close listener", e);
 			}
 		}
 	}
@@ -106,7 +105,7 @@ public class ChatServer {
 				 * null / empty)
 				 */
 				if (userNameChallengeSatisfied == false) {
-					LOGGER.log(Level.FINE, "Sending unique name request to client");
+					LOGGER.log(Level.FINE, "Server is sending unique name request to client");
 					writer.println(SUBMIT_NAME_REQUEST);
 					userName = reader.readLine();
 					if (userName == null || userName.isEmpty()) {
@@ -144,8 +143,8 @@ public class ChatServer {
 						writer.println(SUBMIT_MESSAGE_PREFIX + " " + userName + ":" + input);
 					}
 				}
-			} catch (IOException e) {
-				LOGGER.warning(e.getMessage());
+			}  catch (IOException e) {
+				LOGGER.log(Level.WARNING, "Server failed to retrieve message from user", e);
 			}
 
 			/*
