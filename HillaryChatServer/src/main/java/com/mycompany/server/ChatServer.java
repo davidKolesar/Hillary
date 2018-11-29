@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @author David Kolesar
+ * @author David Kolesar -- 29NOV2018
  *
  *         Hillary Server is a private, multithreaded chat server. It employs
  *         the following steps to operate: 
