@@ -135,8 +135,8 @@ public class ChatClient {
 			}
 		}
 	}
-	
-	//Runs the application as JFrame that will close on exit
+
+	// Runs the application as JFrame that will close on exit
 	public static void main(String[] args) {
 		ChatClient client = new ChatClient();
 		client.jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

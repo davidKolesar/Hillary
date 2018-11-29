@@ -14,11 +14,10 @@ import java.util.logging.Logger;
  * @author David Kolesar -- 29NOV2018
  *
  *         Hillary Server is a private, multithreaded chat server. It employs
- *         the following steps to operate: 
- *         1. Client connects to server. 
- *         2. User submits a String to the server (potential username). 
- *         3. The server checks the username against all usernames already registered. 
- *         4. If the username isn't unique, the user is challenged for a new one. 
+ *         the following steps to operate: 1. Client connects to server. 2. User
+ *         submits a String to the server (potential username). 3. The server
+ *         checks the username against all usernames already registered. 4. If
+ *         the username isn't unique, the user is challenged for a new one.
  *         Else, a new handler thread is created. 5. User is assigned a unique
  *         printWriter.
  *
@@ -41,7 +40,7 @@ public class ChatServer {
 		LOGGER.info("Launching application");
 		System.out.println("Launching Hillary Server");
 		ServerSocket listener = null;
-		
+
 		// Trying to instantiate new listener
 		try {
 			listener = new ServerSocket(PORT);
@@ -104,20 +103,20 @@ public class ChatServer {
 				 * Requests username from user and challenges them if it already exists (or is
 				 * null / empty)
 				 */
-				while(userNameChallengeSatisfied == false) {
+				while (userNameChallengeSatisfied == false) {
 					LOGGER.log(Level.FINE, "Server is sending unique name request to client");
 					writer.println(SUBMIT_NAME_REQUEST);
 					userName = reader.readLine();
 					if (userName == null || userName.trim().isEmpty()) {
 						LOGGER.log(Level.FINE, "Client returned a username that is empty or null.");
 					} else {
-						
+
 						/*
 						 * Locks HashSet of names to enforce that only one thread at a time should be
 						 * able to access the method in order to avoid racing condition (duplicate
 						 * usernames)
 						 */
-						
+
 						synchronized (userNames) {
 							if (!userNames.contains(userName)) {
 								LOGGER.log(Level.FINE, "Client returned unique username");
@@ -135,15 +134,13 @@ public class ChatServer {
 				// Display messages from all users
 				while (true) {
 					String input = reader.readLine();
-					if (input == null || input.isEmpty()) {
-						// User cannot send a null or empty message
-						return;
-					}
 					for (PrintWriter writer : printWriters) {
-						writer.println(SUBMIT_MESSAGE_PREFIX + " " + userName + ":" + input);
+						if (input != null && !input.trim().isEmpty()) {
+							writer.println(SUBMIT_MESSAGE_PREFIX + " " + userName + ":" + input);
+						}
 					}
 				}
-			}  catch (IOException e) {
+			} catch (IOException e) {
 				LOGGER.log(Level.WARNING, "Server failed to retrieve message from user", e);
 			}
 
