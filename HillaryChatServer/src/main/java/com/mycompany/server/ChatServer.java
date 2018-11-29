@@ -32,43 +32,47 @@ public class ChatServer {
 	private static HashSet<PrintWriter> printWriters = new HashSet<PrintWriter>();
 
 	/**
-	 * Upon appplication launch, this thread listens for new connections,
-	 * spawns handlers, and triggers new threads upon successful login
+	 * Upon appplication launch, this thread listens for new connections, spawns
+	 * handlers, and triggers new threads upon successful login
 	 */
 	public static void main(String[] args) {
 		LOGGER.info("Launching application");
 		System.out.println("Launching Hillary Server");
-		ServerSocket listener;
+		ServerSocket listener = null;
+		// Trying to instantiate new listener
 		try {
 			listener = new ServerSocket(PORT);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException e) {
+			LOGGER.warning("failed to instantate new ServerSocket on port " + PORT);
+			e.printStackTrace();
 		}
+		// Trying to instantiate new Handler
 		try {
 			while (true) {
-				new Handler(listener.accept()).start();
+				new UserInteractionService(listener.accept()).start();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			LOGGER.warning("failed to spawn new Handler!");
 			e.printStackTrace();
-		} finally {
+		}
+		// Finally block closes listener upon disconnect
+		finally {
 			try {
 				listener.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				LOGGER.warning("failed to close listener.");
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private static class Handler extends Thread {
+	private static class UserInteractionService extends Thread {
 		private String userName;
 		private BufferedReader reader;
 		private PrintWriter writer;
 		private Socket socket;
 
-		public Handler(Socket socket) {
+		public UserInteractionService(Socket socket) {
 			this.socket = socket;
 		}
 	}
