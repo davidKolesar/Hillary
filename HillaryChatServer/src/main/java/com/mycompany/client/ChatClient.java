@@ -33,6 +33,7 @@ public class ChatClient {
 	private static final String SUBMIT_NAME_REQUEST = "SUBMIT_USERNAME";
 	private static final String RECEIVE_NAME_CONFIRMATION = "USERNAME_UNIQUE";
 	private static final String SUBMIT_MESSAGE_PREFIX = "MESSAGE";
+	private static final int PORT = 9001;
 
 	private String userName = "New User";
 	private BufferedReader reader;
@@ -92,7 +93,7 @@ public class ChatClient {
 
 		// try to instantiate new socket
 		try {
-			socket = new Socket(serverIP, 9001);
+			socket = new Socket(serverIP, PORT);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Client failed to instantiate new socket.", e);
 		}

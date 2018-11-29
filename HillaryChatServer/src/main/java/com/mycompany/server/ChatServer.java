@@ -104,7 +104,7 @@ public class ChatServer {
 				 * Requests username from user and challenges them if it already exists (or is
 				 * null / empty)
 				 */
-				if (userNameChallengeSatisfied == false) {
+				while(userNameChallengeSatisfied == false) {
 					LOGGER.log(Level.FINE, "Server is sending unique name request to client");
 					writer.println(SUBMIT_NAME_REQUEST);
 					userName = reader.readLine();
