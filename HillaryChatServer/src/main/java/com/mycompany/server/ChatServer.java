@@ -1,6 +1,10 @@
 package com.mycompany.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
@@ -24,7 +28,48 @@ public class ChatServer {
 	private static final String RECEIVE_NAME_CONFIRMATION = "USERNAME_UNIQUE";
 	private static final String SUBMIT_MESSAGE_PREFIX = "MESSAGE";
 	private static HashSet<String> userNames = new HashSet<String>();
-	//Each user is assigned a unique printWriter
+	// Each user is assigned a unique printWriter
 	private static HashSet<PrintWriter> printWriters = new HashSet<PrintWriter>();
 
+	/**
+	 * Upon appplication launch, this thread listens for new connections,
+	 * spawns handlers, and triggers new threads upon successful login
+	 */
+	public static void main(String[] args) {
+		LOGGER.info("Launching application");
+		System.out.println("Launching Hillary Server");
+		ServerSocket listener;
+		try {
+			listener = new ServerSocket(PORT);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			while (true) {
+				new Handler(listener.accept()).start();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				listener.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private static class Handler extends Thread {
+		private String userName;
+		private BufferedReader reader;
+		private PrintWriter writer;
+		private Socket socket;
+
+		public Handler(Socket socket) {
+			this.socket = socket;
+		}
+	}
 }
