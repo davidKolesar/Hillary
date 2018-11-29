@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -14,8 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import com.mycompany.server.ChatServer;
 
 /**
  * @author David Kolesar -- 29NOV2018
@@ -85,16 +84,62 @@ public class ChatClient {
 				JOptionPane.PLAIN_MESSAGE);
 	}
 
-	//Connects to Hillary Chat Server
-	private void run()
-	{
-		//Make connection and initialize streams
+	// Connects to Hillary Chat Server
+	private void run() {
+		// Make connection and initialize streams
 		String serverIP = getServerAddress();
+		Socket socket = null;
+
+		// try to instantiate new socket
 		try {
-			Socket socket = new Socket(serverIP, 9001);
+			socket = new Socket(serverIP, 9001);
 		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Client failed to instantiate new socket.", e);
+			LOGGER.log(Level.SEVERE, "Client failed to instantiate new socket.", e);
 		}
-		
+
+		// try to read input stream from socket
+		try {
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE,
+					"Client failed to read input stream from user socket (Client likely failed to instantiate new socket).",
+					e);
+		}
+
+		try {
+			writer = new PrintWriter(socket.getOutputStream(), true);
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE,
+					"Client failed to write output stream from user socket (Client likely failed to instantiate new socket).",
+					e);
+		}
+
+		// Handles server messages via protocol
+		while (true) {
+			String line = null;
+			try {
+				line = reader.readLine();
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE, "Client failed to read message from Server.", e);
+				e.printStackTrace();
+			}
+			if (line.startsWith(SUBMIT_NAME_REQUEST)) {
+				userName = getName();
+				writer.println(userName);
+				jFrame.setTitle(userName);
+			} else if (line.startsWith(RECEIVE_NAME_CONFIRMATION)) {
+				jTextField.setEditable(true);
+			} else if (line.startsWith(SUBMIT_MESSAGE_PREFIX)) {
+				messageArea.append(line.substring(8) + "\n");
+			}
+		}
+	}
+	
+	//Runs the application as JFrame that will close on exit
+	public static void main(String[] args) {
+		ChatClient client = new ChatClient();
+		client.jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		client.jFrame.setVisible(true);
+		client.run();
 	}
 }
