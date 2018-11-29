@@ -24,7 +24,6 @@ Functionality:
 
 TODOS:
 
--- user can currently log in with an empty or null username (Serverside Validation)
 -- null user message throws NPE
 -- Make UI more user friendly
 -- Make .exe? 

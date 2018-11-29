@@ -108,7 +108,7 @@ public class ChatServer {
 					LOGGER.log(Level.FINE, "Server is sending unique name request to client");
 					writer.println(SUBMIT_NAME_REQUEST);
 					userName = reader.readLine();
-					if (userName == null || userName.isEmpty()) {
+					if (userName == null || userName.trim().isEmpty()) {
 						LOGGER.log(Level.FINE, "Client returned a username that is empty or null.");
 					} else {
 						
