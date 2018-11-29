@@ -14,10 +14,11 @@ import java.util.logging.Logger;
  * @author David Kolesar
  *
  *         Hillary Server is a private, multithreaded chat server. It employs
- *         the following steps to operate: 1. Client connects to server. 2. User
- *         submits a String to the server (potential username). 3. The server
- *         checks the username against all usernames already registered. 4. If
- *         the username isn't unique, the user is challenged for a new one. 4.
+ *         the following steps to operate: 
+ *         1. Client connects to server. 
+ *         2. User submits a String to the server (potential username). 
+ *         3. The server checks the username against all usernames already registered. 
+ *         4. If the username isn't unique, the user is challenged for a new one. 
  *         Else, a new handler thread is created. 5. User is assigned a unique
  *         printWriter.
  *
@@ -41,29 +42,29 @@ public class ChatServer {
 		LOGGER.info("Launching application");
 		System.out.println("Launching Hillary Server");
 		ServerSocket listener = null;
+		
 		// Trying to instantiate new listener
 		try {
 			listener = new ServerSocket(PORT);
 		} catch (IOException e) {
-			LOGGER.warning("failed to instantate new ServerSocket on port " + PORT);
-			e.printStackTrace();
+			LOGGER.warning("failed to instantate new ServerSocket on port " + PORT +" Error : " + e.getMessage());
 		}
-		// Trying to instantiate new Handler
+
+		// Trying to instantiate new UserInteractionService
 		try {
 			while (true) {
 				new UserInteractionService(listener.accept()).start();
 			}
 		} catch (IOException e) {
-			LOGGER.warning("failed to spawn new Handler!");
-			e.printStackTrace();
+			LOGGER.warning("failed to spawn new Handler. Error : " + e.getMessage());
 		}
+
 		// Finally block closes listener upon disconnect
 		finally {
 			try {
 				listener.close();
 			} catch (IOException e) {
-				LOGGER.warning("failed to close listener.");
-				e.printStackTrace();
+				LOGGER.warning("failed to close listener. Error : " + e.getMessage());
 			}
 		}
 	}
@@ -111,11 +112,13 @@ public class ChatServer {
 					if (userName == null || userName.isEmpty()) {
 						LOGGER.log(Level.FINE, "Client returned a username that is empty or null.");
 					} else {
+						
 						/*
 						 * Locks HashSet of names to enforce that only one thread at a time should be
 						 * able to access the method in order to avoid racing condition (duplicate
 						 * usernames)
 						 */
+						
 						synchronized (userNames) {
 							if (!userNames.contains(userName)) {
 								LOGGER.log(Level.FINE, "Client returned unique username");
@@ -133,8 +136,8 @@ public class ChatServer {
 				// Display messages from all users
 				while (true) {
 					String input = reader.readLine();
-					if (input == null) {
-						// User cannot send a null message
+					if (input == null || input.isEmpty()) {
+						// User cannot send a null or empty message
 						return;
 					}
 					for (PrintWriter writer : printWriters) {
