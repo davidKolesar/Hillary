@@ -23,7 +23,6 @@ Functionality:
 
 
 TODOS:
--- Null IP crashes client
 -- Make UI more user friendly
 -- Make .exe? 
 
@@ -31,3 +30,5 @@ Fixed:
 
 -- Null user message throws NPE
 -- Empty user messages disable application functionality 
+-- Null IP crashed client
+-- Employ MVC (This is the best I know how with Swing)
