@@ -14,10 +14,11 @@ import java.util.logging.Logger;
  * @author David Kolesar -- 29NOV2018
  *
  *         Hillary Server is a private, multithreaded chat server. It employs
- *         the following steps to operate: 1. Client connects to server. 2. User
- *         submits a String to the server (potential username). 3. The server
- *         checks the username against all usernames already registered. 4. If
- *         the username isn't unique, the user is challenged for a new one.
+ *         the following steps to operate: 
+ *         1. Client connects to server. 
+ *         2. User submits a String to the server (potential username). 
+ *         3. The server checks the username against all usernames already registered. 
+ *         4. If the username isn't unique, the user is challenged for a new one.
  *         Else, a new handler thread is created. 5. User is assigned a unique
  *         printWriter.
  *
@@ -38,7 +39,6 @@ public class ChatServer {
 	 */
 	public static void main(String[] args) {
 		LOGGER.info("Launching application");
-		System.out.println("Launching Hillary Server");
 		ServerSocket listener = null;
 
 		// Trying to instantiate new listener
@@ -54,7 +54,7 @@ public class ChatServer {
 				new UserInteractionService(listener.accept()).start();
 			}
 		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Server failed to spwan new UserInteractionService", e);
+			LOGGER.log(Level.WARNING, "Server failed to spawn new UserInteractionService", e);
 		}
 
 		// Finally block closes listener upon disconnect
@@ -96,8 +96,16 @@ public class ChatServer {
 			try {
 				LOGGER.info("New client is attempting to connect");
 				// Creates BufferedReader to display text through the socket to users.
-				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				writer = new PrintWriter(socket.getOutputStream(), true);
+				try {
+					reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				} catch (IOException e) {
+					LOGGER.log(Level.WARNING, "Server failed create new reader.", e);
+				}
+				try {
+					writer = new PrintWriter(socket.getOutputStream(), true);
+				} catch (IOException e) {
+					LOGGER.log(Level.WARNING, "Server failed to create writer", e);
+				}
 
 				/*
 				 * Requests username from user and challenges them if it already exists (or is
@@ -106,7 +114,12 @@ public class ChatServer {
 				while (userNameChallengeSatisfied == false) {
 					LOGGER.log(Level.FINE, "Server is sending unique name request to client");
 					writer.println(SUBMIT_NAME_REQUEST);
-					userName = reader.readLine();
+					try {
+						userName = reader.readLine();
+					} catch (IOException e) {
+						LOGGER.log(Level.WARNING, "Server failed to read from reader", e);
+						e.printStackTrace();
+					}
 					if (userName == null || userName.trim().isEmpty()) {
 						LOGGER.log(Level.FINE, "Client returned a username that is empty or null.");
 					} else {
@@ -116,7 +129,6 @@ public class ChatServer {
 						 * able to access the method in order to avoid racing condition (duplicate
 						 * usernames)
 						 */
-
 						synchronized (userNames) {
 							if (!userNames.contains(userName)) {
 								LOGGER.log(Level.FINE, "Client returned unique username");
@@ -133,15 +145,18 @@ public class ChatServer {
 
 				// Display messages from all users
 				while (true) {
-					String input = reader.readLine();
-					for (PrintWriter writer : printWriters) {
+					String input = null;
+					try {
+						input = reader.readLine();
+					} catch (IOException e) {
+						LOGGER.log(Level.WARNING, "Server failed to read from reader", e);
+					}
+					for (PrintWriter printWriter : printWriters) {
 						if (input != null && !input.trim().isEmpty()) {
 							writer.println(SUBMIT_MESSAGE_PREFIX + " " + userName + ":" + input);
 						}
 					}
 				}
-			} catch (IOException e) {
-				LOGGER.log(Level.WARNING, "Server failed to retrieve message from user", e);
 			}
 
 			/*

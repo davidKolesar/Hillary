@@ -11,19 +11,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.mycompany.client.view.ClientView;
+
 /**
  * @author David Kolesar -- 29NOV2018
  *
- *         Gateway to Hillary server 1. Server sends 'SUBMIT_USERNAME' request
- *         2. User responds with usernamename 3. If username is not unique,
- *         server responds with 'SUBMIT_USERNAME' prefix 4. If username is
- *         unique, server responds with 'USERNAME_ACCEPTED.' 5. If username is
- *         accepted, client is able to send messages to other users connected to
+ *         Gateway to Hillary server 
+ *         1. Server sends 'SUBMIT_USERNAME' request
+ *         2. User responds with usernamename 
+ *         3. If username is not unique, server responds with 'SUBMIT_USERNAME' prefix 
+ *         4. If username is unique, server responds with 'USERNAME_ACCEPTED.' 
+ *         5. If username is accepted, client is able to send messages to other users connected to
  *         the server
  * 
  */
@@ -35,23 +37,24 @@ public class ChatClient {
 	private static final String SUBMIT_MESSAGE_PREFIX = "MESSAGE";
 	private static final int PORT = 9001;
 
+	private ClientView view = new ClientView();
 	private String userName = "New User";
-	private BufferedReader reader;
 	private PrintWriter writer;
-	private JFrame jFrame = new JFrame(userName);
-	private JTextField jTextField = new JTextField(60);
+	private BufferedReader reader;
+	public JFrame jFrame = new JFrame(userName);
+	public JTextField jTextField = new JTextField(60);
 	private JTextArea messageArea = new JTextArea(10, 60);
 
 	/**
 	 * Constructor builds JFrame such that textfield is not editable until client
 	 * receives the RECEIVE_NAME_CONFIRMATION from the server.
 	 */
-	/**
-	 * 
-	 */
 	public ChatClient() {
-
-		drawGUI();
+		jTextField.setEditable(false);
+		messageArea.setEditable(false);
+		jFrame.getContentPane().add(jTextField, "North");
+		jFrame.getContentPane().add(new JScrollPane(messageArea), "Center");
+		jFrame.pack();
 
 		// listens for enter
 		jTextField.addActionListener(new ActionListener() {
@@ -65,30 +68,10 @@ public class ChatClient {
 		});
 	}
 
-	private void drawGUI() {
-		jTextField.setEditable(false);
-		messageArea.setEditable(false);
-		jFrame.getContentPane().add(jTextField, "North");
-		jFrame.getContentPane().add(new JScrollPane(messageArea), "Center");
-		jFrame.pack();
-	}
-
-	// Initialize Splash Screen
-	private String getServerAddress() {
-		return JOptionPane.showInputDialog(jFrame, "Enter Hillary Server's IP Address :", "Hilary Chat Server",
-				JOptionPane.QUESTION_MESSAGE);
-	}
-
-	// Challenge for username
-	private String getName() {
-		return JOptionPane.showInputDialog(jFrame, "Enter a unique user name :", "Username MUST be unique.",
-				JOptionPane.PLAIN_MESSAGE);
-	}
-
 	// Connects to Hillary Chat Server
 	private void run() {
 		// Make connection and initialize streams
-		String serverIP = getServerAddress();
+		String serverIP = view.getServerAddress();
 		Socket socket = null;
 
 		// try to instantiate new socket
@@ -125,7 +108,7 @@ public class ChatClient {
 				e.printStackTrace();
 			}
 			if (line.startsWith(SUBMIT_NAME_REQUEST)) {
-				userName = getName();
+				userName = view.getName();
 				writer.println(userName);
 				jFrame.setTitle(userName);
 			} else if (line.startsWith(RECEIVE_NAME_CONFIRMATION)) {
